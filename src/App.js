@@ -1,25 +1,93 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
 
-function App() {
+import React, { useState } from 'react';
+import { Button, Modal, Typography, Box } from '@mui/material';
+import LoginForm from './LoginForm';
+import TeacherSignup from './TeacherSignup';
+
+const App = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loginOption, setLoginOption] = useState('');
+
+  const handleModalOpen = (option) => {
+    setLoginOption(option);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleSignupNext = () => {
+    // Add logic for handling the signup form's "Next" button
+    console.log('Signup Next Clicked');
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh', // Adjust the height as needed
+      }}
+    >
+      <Typography variant="h2" gutterBottom>
+        Welcome to the Quiz App
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        onClick={() => handleModalOpen('student')}
+        style={{ margin: '16px' }}
+      >
+         Student
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        onClick={() => handleModalOpen('teacher')}
+        style={{ margin: '16px' }}
+      >
+        Teacher
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        size="large"
+        onClick={() => handleModalOpen('signup')}
+        style={{ margin: '16px' }}
+      >
+        Sign Up
+      </Button>
+      <Modal open={modalOpen} onClose={handleModalClose}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          <Typography variant="h5" gutterBottom>
+            {loginOption === 'signup' ? 'Sign Up' : 'Login'}
+          </Typography>
+          {loginOption === 'signup' ? (
+            <TeacherSignup onNext={handleSignupNext} onCancel={handleModalClose} />
+          ) : (
+            <LoginForm onClose={handleModalClose} />
+          )}
+        </Box>
+      </Modal>
     </div>
   );
-}
+};
 
 export default App;
