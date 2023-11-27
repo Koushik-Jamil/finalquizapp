@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Box } from '@mui/material';
+import OrganizationForm from './OrganizationForm';
 
-const TeacherSignup = ({ onNext, onCancel }) => {
+const TeacherSignup = ({ onCancel, onNext }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,10 +12,13 @@ const TeacherSignup = ({ onNext, onCancel }) => {
     confirmPassword: '',
     email: '',
     confirmEmail: '',
+    organizationType: '',
+    organizationName: '',
   });
 
   const [isNextEnabled, setNextEnabled] = useState(false);
   const [validationWarning, setValidationWarning] = useState('');
+  const [showOrganizationForm, setShowOrganizationForm] = useState(false);
 
   const handleChange = (field) => (event) => {
     const updatedFormData = { ...formData, [field]: event.target.value };
@@ -23,28 +27,44 @@ const TeacherSignup = ({ onNext, onCancel }) => {
   };
 
   const validateForm = (data) => {
-    const isEmailValid = isValidEmail(data.email);
-    const isPasswordMatch = data.password === data.confirmPassword;
-    const isEmailMatch = data.email === data.confirmEmail;
-    const isFormFilled =
-      data.firstName !== '' &&
-      data.lastName !== '' &&
-      data.password !== '' &&
-      data.confirmPassword !== '' &&
-      data.email !== '' &&
-      data.confirmEmail !== '';
+    // Validate the form fields
+
+    // Additional validation logic for the organization form
+    const isOrganizationTypeFilled = data.organizationType !== '';
+    const isOrganizationNameFilled = data.organizationName !== '';
 
     setValidationWarning('');
 
-    if (!isPasswordMatch) {
-      setValidationWarning('Passwords do not match.');
-    } else if (!isEmailMatch) {
-      setValidationWarning('Emails do not match.');
-    } else if (!isEmailValid) {
-      setValidationWarning('Email is not valid (Gmail, Yahoo, Outlook only).');
-    }
+    if (showOrganizationForm) {
+      if (!isOrganizationTypeFilled) {
+        setValidationWarning('Please select an organization type.');
+      } else if (!isOrganizationNameFilled) {
+        setValidationWarning('Please enter an organization name.');
+      }
+      setNextEnabled(isOrganizationTypeFilled && isOrganizationNameFilled);
+    } else {
+      // Validation for the initial teacher signup form
+      const isEmailValid = isValidEmail(data.email);
+      const isPasswordMatch = data.password === data.confirmPassword;
+      const isEmailMatch = data.email === data.confirmEmail;
+      const isFormFilled =
+        data.firstName !== '' &&
+        data.lastName !== '' &&
+        data.password !== '' &&
+        data.confirmPassword !== '' &&
+        data.email !== '' &&
+        data.confirmEmail !== '';
 
-    setNextEnabled(isEmailValid && isPasswordMatch && isEmailMatch && isFormFilled);
+      if (!isPasswordMatch) {
+        setValidationWarning('Passwords do not match.');
+      } else if (!isEmailMatch) {
+        setValidationWarning('Emails do not match.');
+      } else if (!isEmailValid) {
+        setValidationWarning('Email is not valid (Gmail, Yahoo, Outlook only).');
+      }
+
+      setNextEnabled(isEmailValid && isPasswordMatch && isEmailMatch && isFormFilled);
+    }
   };
 
   const isValidEmail = (email) => {
@@ -57,8 +77,12 @@ const TeacherSignup = ({ onNext, onCancel }) => {
   };
 
   const handleNext = () => {
-    if (isNextEnabled) {
-      // Add additional logic before proceeding to the next page
+    if (!showOrganizationForm) {
+      setShowOrganizationForm(true);
+      validateForm(formData); // Validate the organization form initially
+    } else if (isNextEnabled) {
+      // Handle final step, e.g., submit data, call an API, etc.
+      // Optionally, you can call onNext here if needed
       onNext();
     }
   };
@@ -66,77 +90,93 @@ const TeacherSignup = ({ onNext, onCancel }) => {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Create New Teacher Account
+        {showOrganizationForm ? 'Organization Form' : 'Create New Teacher Account'}
       </Typography>
       <form>
-        <TextField
-          label="First Name"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.firstName}
-          onChange={handleChange('firstName')}
-        />
-        <TextField
-          label="Last Name"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.lastName}
-          onChange={handleChange('lastName')}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.password}
-          onChange={handleChange('password')}
-        />
-        <TextField
-          label="Confirm Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.confirmPassword}
-          onChange={handleChange('confirmPassword')}
-        />
-        <TextField
-          label="Email"
-          type="email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.email}
-          onChange={handleChange('email')}
-        />
-        <TextField
-          label="Confirm Email"
-          type="email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.confirmEmail}
-          onChange={handleChange('confirmEmail')}
-        />
-        {validationWarning && (
-          <Typography variant="body2" color="error">
-            {validationWarning}
-          </Typography>
+        {showOrganizationForm ? (
+          <OrganizationForm
+            onNext={onNext}
+            onPrevious={() => setShowOrganizationForm(false)}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        ) : (
+          <>
+            <TextField
+              label="First Name"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.firstName}
+              onChange={handleChange('firstName')}
+            />
+            <TextField
+              label="Last Name"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.lastName}
+              onChange={handleChange('lastName')}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.password}
+              onChange={handleChange('password')}
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.confirmPassword}
+              onChange={handleChange('confirmPassword')}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.email}
+              onChange={handleChange('email')}
+            />
+            <TextField
+              label="Confirm Email"
+              type="email"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={formData.confirmEmail}
+              onChange={handleChange('confirmEmail')}
+            />
+            {validationWarning && (
+              <Typography variant="body2" color="error">
+                {validationWarning}
+              </Typography>
+            )}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNext}
+              disabled={!isNextEnabled}
+            >
+              Next
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={onCancel}
+              sx={{ marginLeft: 2 }}
+            >
+              Cancel
+            </Button>
+          </>
         )}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNext}
-          disabled={!isNextEnabled}
-        >
-          Next
-        </Button>
-        <Button variant="outlined" color="secondary" onClick={onCancel} sx={{ marginLeft: 2 }}>
-          Cancel
-        </Button>
       </form>
     </Box>
   );

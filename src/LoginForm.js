@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, TextField, Typography } from '@mui/material';
+import { Button, TextField, Typography, Link } from '@mui/material';
 
 const LoginForm = ({ onClose }) => {
   const [username, setUsername] = useState('');
@@ -43,7 +43,10 @@ const LoginForm = ({ onClose }) => {
       <Button variant="outlined" color="primary" onClick={handleSignUp}>
         Sign Up Now
       </Button>
-      <Button variant="outlined" color="secondary" onClick={onClose} sx={{ marginLeft: 2 }}>
+      <Link href="#" color="textSecondary" sx={{ marginTop: 1, display: 'block' }}>
+        Did you forget your password?
+      </Link>
+      <Button variant="outlined" color="secondary" onClick={onClose} sx={{ marginTop: 1 }}>
         Cancel
       </Button>
     </div>
