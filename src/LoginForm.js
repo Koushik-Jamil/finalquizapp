@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { Button, TextField, Typography, Link } from '@mui/material';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; // Assuming you export your auth instance from firebase.js
 
 const LoginForm = ({ onClose }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Implement login logic here
-    console.log('Login clicked:', { username, password });
+  const handleLogin = async () => {
+    try {
+      // Sign in the user
+      await signInWithEmailAndPassword(auth, email, password);
+      
+      // Handle successful login (e.g., close modal, redirect, etc.)
+      console.log('Login successful');
+      onClose();
+    } catch (error) {
+      console.error('Error signing in:', error.message);
+    }
   };
 
   const handleSignUp = () => {
@@ -18,12 +28,12 @@ const LoginForm = ({ onClose }) => {
   return (
     <div>
       <TextField
-        label="Username"
+        label="Email"
         variant="outlined"
         fullWidth
         margin="normal"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <TextField
         label="Password"

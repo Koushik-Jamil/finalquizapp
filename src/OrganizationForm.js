@@ -1,7 +1,6 @@
-// OrganizationForm.js
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const OrganizationForm = ({ onNext, onPrevious, formData, setFormData }) => {
   const [organizationData, setOrganizationData] = useState({
@@ -11,22 +10,34 @@ const OrganizationForm = ({ onNext, onPrevious, formData, setFormData }) => {
     phoneNumber: formData.phoneNumber,
   });
 
+  const [isFormFilled, setFormFilled] = useState(false);
+
+  // Subscribe to authentication state changes
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // If a user is logged in, enable the form
+        setFormFilled(true);
+      } else {
+        // If no user is logged in, disable the form
+        setFormFilled(false);
+      }
+    });
+
+    // Clean up the subscription when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
   const handleChange = (field) => (event) => {
     const updatedOrganizationData = { ...organizationData, [field]: event.target.value };
     setOrganizationData(updatedOrganizationData);
-    setFormData(updatedOrganizationData); // Update the parent form data
+    setFormData(updatedOrganizationData);
   };
 
   const handleNext = () => {
     onNext();
   };
-
-  // Validation check to enable/disable the "Join" button
-  const isFormFilled =
-    organizationData.organizationType !== '' &&
-    organizationData.organizationName !== '' &&
-    organizationData.role !== '' &&
-    organizationData.phoneNumber !== '';
 
   return (
     <Box>

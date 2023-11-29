@@ -1,7 +1,8 @@
 // TeacherSignup.js
-
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Box } from '@mui/material';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { collection, addDoc } from 'firebase/firestore';
 import OrganizationForm from './OrganizationForm';
 
 const TeacherSignup = ({ onCancel, onNext }) => {
@@ -19,6 +20,9 @@ const TeacherSignup = ({ onCancel, onNext }) => {
   const [isNextEnabled, setNextEnabled] = useState(false);
   const [validationWarning, setValidationWarning] = useState('');
   const [showOrganizationForm, setShowOrganizationForm] = useState(false);
+
+  // Use the imported auth object
+  const auth = getAuth();
 
   const handleChange = (field) => (event) => {
     const updatedFormData = { ...formData, [field]: event.target.value };
@@ -68,7 +72,7 @@ const TeacherSignup = ({ onCancel, onNext }) => {
   };
 
   const isValidEmail = (email) => {
-    // Check for Gmail, Yahoo, and outmail domains
+    // Check for Gmail, Yahoo, and outlook domains
     return (
       email.endsWith('@gmail.com') ||
       email.endsWith('@yahoo.com') ||
@@ -76,14 +80,32 @@ const TeacherSignup = ({ onCancel, onNext }) => {
     );
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!showOrganizationForm) {
       setShowOrganizationForm(true);
       validateForm(formData); // Validate the organization form initially
     } else if (isNextEnabled) {
-      // Handle final step, e.g., submit data, call an API, etc.
-      // Optionally, you can call onNext here if needed
-      onNext();
+      try {
+        // Create the user account using Firebase authentication
+        await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+
+        // Optionally, you can store other details in your database here
+        const db = collection(auth, 'teachers');
+        await addDoc(db, {
+          // ... your teacher data
+        });
+
+        // Send email verification
+        const user = auth.currentUser;
+        await sendEmailVerification(user);
+
+        // Handle final step, e.g., submit data, call an API, etc.
+        // Optionally, you can call onNext here if needed
+        onNext();
+      } catch (error) {
+        // Handle account creation errors
+        console.error('Error creating user account:', error.message);
+      }
     }
   };
 

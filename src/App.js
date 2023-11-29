@@ -1,5 +1,3 @@
-// App.js
-
 import React, { useState } from 'react';
 import { Button, Modal, Typography, Box } from '@mui/material';
 import LoginForm from './LoginForm';
@@ -21,6 +19,9 @@ const App = () => {
   const handleSignupNext = () => {
     // Add logic for handling the signup form's "Next" button
     console.log('Signup Next Clicked');
+    // If needed, you can add logic to navigate to the next step or perform other actions
+    // For now, just closing the modal
+    handleModalClose();
   };
 
   return (
@@ -30,7 +31,7 @@ const App = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '100vh', // Adjust the height as needed
+        height: '100vh',
       }}
     >
       <Typography variant="h2" gutterBottom>
